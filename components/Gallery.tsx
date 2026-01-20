@@ -28,7 +28,7 @@ const createFrames = (): FrameData[] => {
     'https://i.imgur.com/Os1bX0h.jpeg',
     'https://i.imgur.com/wO2nGLm.jpeg',
     'https://i.imgur.com/Tuzi4qn.jpeg',
-    'https://i.imgur.com/Tuzi4qn.jpeg',
+    'https://i.imgur.com/hQl0XyO.jpeg',
   ];
 
   const startAngle = 0.5;
