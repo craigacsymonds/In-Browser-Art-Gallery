@@ -19,16 +19,16 @@ const COLOR_FLOOR = "#1a1a1a"; // Darker floor
 const createFrames = (): FrameData[] => {
   const frames: FrameData[] = [];
   const imageUrls = [
-    'https://i.imgur.com/t5BVRHB.jpeg',
-    'https://i.imgur.com/csU5D87.jpeg',
-    'https://i.imgur.com/UHhgZoE.jpeg',
-    'https://i.imgur.com/rMJlfqn.jpeg',
-    'https://i.imgur.com/jM030m5.jpeg',
-    'https://i.imgur.com/AvUwqDr.jpeg',
-    'https://i.imgur.com/Os1bX0h.jpeg',
-    'https://i.imgur.com/wO2nGLm.jpeg',
-    'https://i.imgur.com/Tuzi4qn.jpeg',
-    'https://i.imgur.com/hQl0XyO.jpeg',
+    'https://i.imgur.com/t5BVRHB.jpeg?v=2',
+    'https://i.imgur.com/csU5D87.jpeg?v=2',
+    'https://i.imgur.com/UHhgZoE.jpeg?v=2',
+    'https://i.imgur.com/rMJlfqn.jpeg?v=2',
+    'https://i.imgur.com/jM030m5.jpeg?v=2',
+    'https://i.imgur.com/AvUwqDr.jpeg?v=2',
+    'https://i.imgur.com/Os1bX0h.jpeg?v=2',
+    'https://i.imgur.com/wO2nGLm.jpeg?v=2',
+    'https://i.imgur.com/Tuzi4qn.jpeg?v=2',
+    'https://i.imgur.com/hQl0XyO.jpeg?v=2',
   ];
 
   const startAngle = 0.5;
