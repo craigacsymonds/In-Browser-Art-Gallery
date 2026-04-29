@@ -21,12 +21,29 @@ const Player: React.FC<PlayerProps> = ({ isMobile, joystickRef, touchLookRef }) 
   // Touch look sensitivity
   const LOOK_SPEED = 0.005;
 
+  // Fix: Windows/Chrome Pointer Lock API bug — the first mousemove event after
+  // locking fires with a large accumulated delta, snapping the camera to the floor.
+  // We save the pitch at lock time and restore it for a few frames until the spike passes.
+  const pitchAtLock = useRef<number | null>(null);
+  const suppressFrames = useRef(0);
+
+  const handleLock = () => {
+    pitchAtLock.current = camera.rotation.x;
+    suppressFrames.current = 5; // suppress for ~5 frames (~83ms at 60fps)
+  };
+
   // Set camera rotation order to YXZ for FPS style (yaw matches world Y)
   useEffect(() => {
     camera.rotation.order = 'YXZ';
   }, [camera]);
 
   useFrame((state, delta) => {
+    // Fix: restore pitch for a few frames after pointer lock engages (Windows spike)
+    if (suppressFrames.current > 0 && pitchAtLock.current !== null) {
+      camera.rotation.x = pitchAtLock.current;
+      suppressFrames.current--;
+    }
+
     // 1. Handle Touch Look (Mobile)
     if (isMobile && touchLookRef && touchLookRef.current) {
       const { x, y } = touchLookRef.current;
@@ -80,7 +97,7 @@ const Player: React.FC<PlayerProps> = ({ isMobile, joystickRef, touchLookRef }) 
 
   return (
     <>
-      {!isMobile && <PointerLockControls ref={controlsRef} />}
+      {!isMobile && <PointerLockControls ref={controlsRef} onLock={handleLock} />}
     </>
   );
 };
