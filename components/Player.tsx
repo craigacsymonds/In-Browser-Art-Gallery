@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { PointerLockControls, useKeyboardControls } from '@react-three/drei';
+import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface PlayerProps {
@@ -21,29 +21,38 @@ const Player: React.FC<PlayerProps> = ({ isMobile, joystickRef, touchLookRef }) 
   // Touch look sensitivity
   const LOOK_SPEED = 0.005;
 
-  // Fix: Windows/Chrome Pointer Lock API bug — the first mousemove event after
-  // locking fires with a large accumulated delta, snapping the camera to the floor.
-  // We save the pitch at lock time and restore it for a few frames until the spike passes.
-  const pitchAtLock = useRef<number | null>(null);
-  const suppressFrames = useRef(0);
-
-  const handleLock = () => {
-    pitchAtLock.current = camera.rotation.x;
-    suppressFrames.current = 5; // suppress for ~5 frames (~83ms at 60fps)
-  };
+  // Desktop: click-and-drag to look (no pointer lock)
+  const isDragging = useRef(false);
+  const DRAG_SPEED = 0.003;
 
   // Set camera rotation order to YXZ for FPS style (yaw matches world Y)
   useEffect(() => {
     camera.rotation.order = 'YXZ';
   }, [camera]);
 
-  useFrame((state, delta) => {
-    // Fix: restore pitch for a few frames after pointer lock engages (Windows spike)
-    if (suppressFrames.current > 0 && pitchAtLock.current !== null) {
-      camera.rotation.x = pitchAtLock.current;
-      suppressFrames.current--;
-    }
+  useEffect(() => {
+    if (isMobile) return;
 
+    const onMouseDown = () => { isDragging.current = true; };
+    const onMouseUp   = () => { isDragging.current = false; };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      camera.rotation.y -= e.movementX * DRAG_SPEED;
+      camera.rotation.x -= e.movementY * DRAG_SPEED;
+      camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+    };
+
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup',   onMouseUp);
+    window.addEventListener('mousemove', onMouseMove);
+    return () => {
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup',   onMouseUp);
+      window.removeEventListener('mousemove', onMouseMove);
+    };
+  }, [camera, isMobile]);
+
+  useFrame((state, delta) => {
     // 1. Handle Touch Look (Mobile)
     if (isMobile && touchLookRef && touchLookRef.current) {
       const { x, y } = touchLookRef.current;
@@ -95,11 +104,7 @@ const Player: React.FC<PlayerProps> = ({ isMobile, joystickRef, touchLookRef }) 
     if (camera.position.z < -LIMIT) camera.position.z = -LIMIT;
   });
 
-  return (
-    <>
-      {!isMobile && <PointerLockControls ref={controlsRef} onLock={handleLock} />}
-    </>
-  );
+  return <></>;
 };
 
 export default Player;
